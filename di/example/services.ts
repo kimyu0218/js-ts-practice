@@ -4,16 +4,16 @@ export interface BaseService {
     hi: () => void;
 }
 
-@Bean({ type: 'BaseService' })
+@Bean({ type: 'Service' })
 export class ServiceA {
-    hi() {
-        console.log("ServiceA");
-    }
+  hi() {
+    console.log('ServiceA');
+  }
 }
 
-@Bean({ type: 'BaseService2' })
+@Bean()
 export class ServiceB {
-    hi() {
-        console.log("ServiceB");
-    }
+  hi() {
+    console.log('ServiceB');
+  }
 }
