@@ -1,7 +1,8 @@
-import { Controller } from "./controllers";
-import { ServiceA, ServiceB } from "./services";
+import { Context, Module } from '../src/decorators';
+import { AnimalModule } from './src/animal/module';
 
-new ServiceA();
-// new ServiceB();
-
-const controller = new Controller();
+@Module({ beans: [AnimalModule] })
+@Context()
+class Application {
+  run() {}
+}

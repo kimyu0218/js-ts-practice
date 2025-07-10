@@ -1,46 +1,71 @@
-import 'reflect-metadata';
+import { BeanParameter, ModuleParameter } from './types';
 import { ApplicationContext } from './application-context';
 
-type BeanFunctionParam = {
-  type?: string;
-  profile?: string;
-  name?: string;
-  args?: any[];
+const PROP_KEY = {
+  PROFLIE: 'profile',
+  BEANS: 'beans',
 };
 
-type AutowiredFunctionParam = {
-  type?: string;
-  name?: string;
-};
-
-// 애플리케이션의 컨텍스트에 빈(컨텍스트 관리 대상)을 등록한다. 프로파일을 전달하지 않는 경우 dev로 판단한다.
-export function Bean({ type, profile = 'dev', name, args }: BeanFunctionParam = { profile: 'dev' }): ClassDecorator {
+export function Bean({ name, value }: BeanParameter = {}): ClassDecorator {
   return (target: any) => {
+    const profile = Object.getOwnPropertyDescriptor(target, PROP_KEY.PROFLIE)?.value ?? 'dev';
     const context = ApplicationContext.getInstance();
+
     if (name) {
-      context.registerBean(name, profile, target, args);
-    } else if (type) {
-      context.registerBean(type, profile, target, args);
+      context.registerBean(name, profile, target);
+    } else if (value) {
+      context.registerBean(value, profile, target);
     } else {
-      context.registerBean(makeBeanKey(target.name), profile, target, args);
+      const proto = Object.getPrototypeOf(target);
+      const key = makeBeanKey(proto.name !== '' ? proto.name : target.name);
+      context.registerBean(key, profile, target);
     }
   };
 }
 
-export function Autowired({ type, name }: AutowiredFunctionParam = {}): PropertyDecorator {
+export function Profile(profile: string): ClassDecorator {
+  return (target: any) => {
+    Object.defineProperty(target, PROP_KEY.PROFLIE, { value: profile });
+  };
+}
+
+export function Autowired(clazz: any): PropertyDecorator {
   return (target: any, propertyKey: string | symbol) => {
-    const key = name ?? type ?? makeBeanKey(propertyKey.toString());
-    Object.defineProperty(target, propertyKey, {
-      get() {
-        const context = ApplicationContext.getInstance();
-        return context.getBean(key);
-      },
-    });
+    const context = ApplicationContext.getInstance();
+    const key = makeBeanKey(typeof clazz == 'string' ? clazz : clazz.name);
+    Object.defineProperty(target, propertyKey, { value: context.getBean(key) });
+  };
+}
+
+export function Context(): ClassDecorator {
+  return (target: any) => {
+    ApplicationContext.getInstance();
+    return new target();
+  };
+}
+
+export function TestContext(): ClassDecorator {
+  return (target: any) => {
+    ApplicationContext.getInstance('test');
+    return new target();
+  };
+}
+
+export function Module({ beans = [] }: ModuleParameter): ClassDecorator {
+  return (target: any) => {
+    Object.defineProperty(target, PROP_KEY.BEANS, beans);
+
+    if (typeof target.proto.run === 'function') {
+      const map = new Map<string, any>();
+      for (const bean of beans) {
+        if (!map.has(bean.name)) {
+          map.set(bean.name, new bean());
+        }
+      }
+    }
   };
 }
 
 function makeBeanKey(str: string): string {
-  str = str.endsWith('Impl') ? str.slice(0, -4) : str;
-  str = str.endsWith('Mock') ? str.slice(0, -4) : str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str.charAt(0).toLowerCase() + str.slice(1);
 }

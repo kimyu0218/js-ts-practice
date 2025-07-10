@@ -8,3 +8,7 @@ export interface BeanParameter {
 }
 
 export interface Autowired {}
+
+export interface ModuleParameter {
+  beans?: any[];
+}
