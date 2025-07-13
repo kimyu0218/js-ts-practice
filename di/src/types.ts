@@ -1,11 +1,17 @@
 export type Constructor = new (...args: any[]) => any;
 export type Profile = string;
+export type PropertyKey = string | symbol;
 
 export type Injectable = Constructor | string;
 
 export interface Inject {
   injectable: Injectable;
-  propertyKey: string | symbol;
+  propertyKey: PropertyKey;
+}
+
+export interface InjectProperty {
+  instance: any;
+  propertyKey: PropertyKey;
 }
 
 export type Provider = ClassProvider | ValueProvider;

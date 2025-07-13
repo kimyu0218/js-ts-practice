@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES, LOG_MESSAGES } from './constants';
-import type { ClassProvider, Profile, Provider, Inject, ValueProvider, Injectable } from './types';
+import type { ClassProvider, Profile, Provider, Inject, ValueProvider, Injectable, InjectProperty } from './types';
 import { getClassName } from './utils';
 
 export class Container {
@@ -7,7 +7,7 @@ export class Container {
 
   private readonly _providers = new Map<Profile, Map<Injectable, Provider>>();
   private readonly _injects = new Map<string, Set<Inject>>();
-  private readonly _injected = new Map<Injectable, any>();
+  private readonly _injected = new Map<string, any>();
 
   private _profile: Profile = 'dev';
   private _setProfile: boolean = false;
@@ -24,7 +24,7 @@ export class Container {
     return Container._instance;
   }
 
-  static setProfile(profile: Profile) {
+  static setProfile(profile: Profile): void {
     const instance = Container.getInstance();
     if (instance._setProfile) {
       throw new Error(ERROR_MESSAGES.PROFILE_ALREADY_SET);
@@ -35,7 +35,7 @@ export class Container {
     instance.log(`Set profile as "${profile}".`);
   }
 
-  provide(profile: Profile, providers: Provider[]) {
+  provide(profile: Profile, providers: Provider[]): void {
     providers.forEach((provider) => {
       if (!this._providers.has(profile)) {
         this._providers.set(profile, new Map());
@@ -69,12 +69,12 @@ export class Container {
       this.resolveInjections(instance, injects);
     }
 
-    this._injected.set(injectable, instance);
+    this._injected.set(token, instance);
     this.log(LOG_MESSAGES.INJECT(this._profile, token));
     return instance;
   }
 
-  addInject(target: any, inject: Inject) {
+  addInjectProperty(target: any, inject: Inject): void {
     const className = getClassName(target);
     if (!this._injects.has(className)) {
       this._injects.set(className, new Set());
@@ -82,7 +82,7 @@ export class Container {
     this._injects.get(className)?.add(inject);
   }
 
-  getInjects(target: any) {
+  getInjectProperties(target: any): InjectProperty[] {
     const className = getClassName(target);
     const properties = this._injects.get(className);
     if (!properties) {
@@ -91,8 +91,9 @@ export class Container {
 
     const injects = [];
     for (const { propertyKey, injectable } of properties) {
-      const instance = this._providers.get(this._profile)?.get(injectable);
-      injects.push([propertyKey, instance]);
+      const token = this.getToken(injectable);
+      const instance = this._injected.get(token);
+      injects.push({ propertyKey, instance });
     }
     return injects;
   }
@@ -104,12 +105,11 @@ export class Container {
     return getClassName(injectable);
   }
 
-  private resolveInjections(instance: any, injects: Set<Inject>) {
-    console.warn('resolve');
-    console.warn(instance);
+  private resolveInjections(instance: any, injects: Set<Inject>): void {
     for (const { injectable, propertyKey } of injects) {
-      if (this._injected.has(injectable)) {
-        instance[propertyKey] = this._injected.get(injectable);
+      const token = this.getToken(injectable);
+      if (this._injected.has(token)) {
+        instance[propertyKey] = this._injected.get(token);
       } else {
         instance[propertyKey] = this.get(injectable);
       }
@@ -117,12 +117,12 @@ export class Container {
   }
 
   // for logging
-  private log(message: string) {
+  private log(message: string): void {
     console.info(`[${Container.name}] [${this._profile.padEnd(12)}] ${message}`);
   }
 
   // for test
-  static reset() {
+  static reset(): void {
     const container = Container.getInstance();
     container._providers.clear();
     container._injects.clear();
