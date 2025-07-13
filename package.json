@@ -1,8 +1,14 @@
 {
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@types/reflect-metadata": "^0.0.5"
+    "@types/jest": "^30.0.0",
+    "@types/reflect-metadata": "^0.0.5",
+    "jest": "^30.0.4",
+    "ts-jest": "^29.4.0"
   }
 }
