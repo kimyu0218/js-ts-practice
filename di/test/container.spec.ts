@@ -77,7 +77,6 @@ describe('Container', () => {
     }
 
     const container = Container.getInstance();
-    // const controller = new Controller();
 
     expect(container.getInjectProperties(Controller)).toEqual([
       { propertyKey: 'serviceA', instance: container.get(ServiceA) },
