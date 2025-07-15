@@ -1,7 +1,7 @@
 import { Profile } from './types';
 
 export const LOG_MESSAGES = {
-  INIT: 'Initailze Container.',
+  INIT: 'Initialize Container.',
   SET_PROFILE: (profile: Profile) => `Set profile as "${profile}"`,
   REGISTER: (profile: Profile, token: string) => `Register "${profile}.${token}"`,
   INJECT: (profile: Profile, token: string) => `Inject "${profile}.${token}".`,
