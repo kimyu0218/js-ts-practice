@@ -8,7 +8,7 @@ export const LOG_MESSAGES = {
 };
 
 export const ERROR_MESSAGES = {
-  PROFILE_ALREADY_SET: 'Profile can only be set once.',
+  ENV_ALREADY_SET: 'Env can only be set once.',
   MULTIPLE_PROVIDERS: (token: string) => `Provider for token "${token}" already registered for this profile.`,
   NO_PROVIDER: (token: string) => `No provider found for token "${token}". Ensure it is registered in your module.`,
 };

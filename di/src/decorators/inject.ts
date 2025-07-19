@@ -26,7 +26,7 @@ export function Inject(options: Injectable | InjectOptions): PropertyDecorator {
 
     container.addInjectProperty(target, { injectable, propertyKey });
     if (!lazy) {
-      target[propertyKey] = container.get(injectable); // 현재 프로파일에 등록된 컴포넌트 반환
+      target[propertyKey] = container.get(injectable);
     }
   };
 }

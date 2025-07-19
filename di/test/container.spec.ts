@@ -16,10 +16,10 @@ describe('Container', () => {
     expect(instance2).toBe(instance1);
   });
 
-  it('프로파일은 두 번 이상 설정하면 예외가 발생한다.', () => {
-    Container.setProfile('profile');
+  it('env는 두 번 이상 설정하면 예외가 발생한다.', () => {
+    Container.setEnv('profile');
 
-    expect(() => Container.setProfile('profile')).toThrow(ERROR_MESSAGES.PROFILE_ALREADY_SET);
+    expect(() => Container.setEnv('profile')).toThrow(ERROR_MESSAGES.ENV_ALREADY_SET);
   });
 
   it('프로바이더를 등록하고 주입받을 수 있다.', () => {

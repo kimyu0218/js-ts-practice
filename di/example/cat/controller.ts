@@ -7,10 +7,6 @@ export class CatController {
   @Inject(CatService)
   private service: CatService | null = null;
 
-  constructor() {
-    console.log('CatController');
-  }
-
   meow() {
     this.service?.meow();
   }
