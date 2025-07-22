@@ -97,4 +97,31 @@ describe('object', () => {
       expect(foo.info == fooClone.info).toBe(false);
     });
   });
+
+  describe('method', () => {
+    it('this는 메서드를 호출한 주체이 따라 런타임에 동적으로 결정된다.', () => {
+      const foo = {
+        name: 'foo',
+        sayName() {
+          return this.name;
+        },
+      };
+
+      expect(foo.sayName()).toBe('foo');
+    });
+
+    it('this 대신 객체를 직접 참조하면 런타임에 참조가 끊겨 오류가 발생할 수 있다.', () => {
+      let foo = {
+        name: 'foo',
+        sayName() {
+          return foo.name;
+        },
+      };
+      const foo2 = foo;
+      // @ts-ignore
+      foo = null;
+
+      expect(() => foo2.sayName()).toThrow();
+    });
+  });
 });
