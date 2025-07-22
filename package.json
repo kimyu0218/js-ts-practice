@@ -3,10 +3,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
+    "@types/lodash": "^4.17.20",
     "@types/reflect-metadata": "^0.0.5",
     "jest": "^30.0.4",
     "ts-jest": "^29.4.0"
