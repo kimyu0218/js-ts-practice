@@ -32,4 +32,16 @@ describe('function this binding', () => {
     expect(foo1).toEqual({ name: 'foo', age: 20 });
     expect(foo2).toEqual({ name: 'foo', age: 20 });
   });
+
+  it('일반 함수는 호출한 객체에 this가 바인딩되지만, 화살표 함수는 외부 this를 그대로 사용한다.', () => {
+    const foo = {
+      func: function () {
+        return this;
+      },
+      // @ts-ignore
+      arrowFunc: () => this,
+    };
+
+    expect(foo.func()).not.toBe(foo.arrowFunc());
+  });
 });

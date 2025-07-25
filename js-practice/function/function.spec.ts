@@ -64,6 +64,15 @@ describe('function', () => {
       expect(foo.length).toBe(0);
     });
 
+    it('rest(...) 문법은 함수의 인자를 배열로 받는다.', () => {
+      const sum = (a: number, b: number): number => a + b;
+      const sumAll = (...args: number[]): number => args.reduce((acc, curr) => acc + curr, 0);
+
+      // @ts-ignore
+      expect(sum(1, 2, 3, 4, 5)).toBe(3);
+      expect(sumAll(1, 2, 3, 4, 5)).toBe(15);
+    });
+
     it('생성자 함수는 prototype 프로퍼티를 가진다.', () => {
       function Foo() {}
 
