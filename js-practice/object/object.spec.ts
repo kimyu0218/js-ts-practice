@@ -124,4 +124,26 @@ describe('object', () => {
       expect(() => foo2.sayName()).toThrow();
     });
   });
+
+  describe('prototype', () => {
+    it('객체의 [[Prototype]]은 Object.prototype이다.', () => {
+      const obj = {};
+
+      // @ts-ignore
+      expect(obj.__proto__).toBe(Object.prototype);
+      // @ts-ignore
+      expect(obj.__proto__.toString).toBe(Object.prototype.toString);
+    });
+
+    it('내장 객체의 [[Prototype]]은 Object.prototype이다.', () => {
+      // @ts-ignore
+      expect(Array.prototype.__proto__).toBe(Object.prototype);
+      // @ts-ignore
+      expect(String.prototype.__proto__).toBe(Object.prototype);
+      // @ts-ignore
+      expect(Function.prototype.__proto__).toBe(Object.prototype);
+      // @ts-ignore
+      expect(Map.prototype.__proto__).toBe(Object.prototype);
+    });
+  });
 });

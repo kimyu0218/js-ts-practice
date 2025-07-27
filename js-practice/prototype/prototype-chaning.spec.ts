@@ -1,4 +1,38 @@
 describe('prototype chaining', () => {
+  describe('prototype', () => {
+    it('객체는 [[Prototype]]이라는 숨겨진 프로퍼티를 가지고 있으며, __proto__를 이용해 해당 프로퍼티에 접근할 수 있다.', () => {
+      const foo = {};
+
+      // @ts-ignore
+      expect(foo.__proto__).not.toBeUndefined();
+    });
+
+    it('객체에 프로퍼티가 없는 경우 프로토타입에서 해당 프로퍼티를 가져오는데, 이를 프로토토입 상속이라고 한다.', () => {
+      const animal = {
+        eat: true,
+      };
+      const rabbit = {
+        jump: true,
+        __proto__: animal,
+      };
+
+      expect('eat' in rabbit).toBe(true);
+    });
+
+    it('상속받은 프로퍼티는 Object.keys()에 포함되지 않고 ownProperty도 아니다.', () => {
+      const animal = {
+        eat: true,
+      };
+      const rabbit = {
+        jump: true,
+        __proto__: animal,
+      };
+
+      expect(Object.keys(rabbit).find((key) => key === 'eat')).toBeUndefined();
+      expect(rabbit.hasOwnProperty('eat')).toBe(false);
+    });
+  });
+
   describe('[[Prototype]] 변경', () => {
     it('[[Prototype]]을 다른 객체로 변경할 수 있다.', () => {
       function Foo(name: string) {

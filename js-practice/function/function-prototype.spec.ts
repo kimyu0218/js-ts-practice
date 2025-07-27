@@ -3,19 +3,21 @@ describe('function prototype', () => {
     it('prototype 프로퍼티는 constructor 프로퍼티 하나만 있는 객체를 가리킨다.', () => {
       function Foo() {}
 
-      const proto = Foo.prototype;
-
-      expect('constructor' in proto).toBe(true);
-      expect(proto.constructor).toBe(Foo);
+      expect('constructor' in Foo.prototype).toBe(true);
+      expect(Foo.prototype.constructor).toBe(Foo);
     });
 
-    it('prototype은 인스턴스의 [[Prototype]]으로 연결된다.', () => {
-      function Foo() {}
-
+    it('prototype 프로퍼티는 생성자 함수가 new와 함께 불렸을 때, 새로운 인스턴스에 [[Prototype]]으로 연결된다.', () => {
+      const animal = {};
+      function Rabbit(name: string) {
+        // @ts-ignore
+        this.name = name;
+      }
+      Rabbit.prototype = animal;
       // @ts-ignore
-      const foo = new Foo();
+      const rabbit = new Rabbit('bunny');
 
-      expect(foo.__proto__).toBe(Foo.prototype);
+      expect(rabbit.__proto__).toBe(animal);
     });
   });
 });
