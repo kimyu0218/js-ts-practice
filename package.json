@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test-js-practice": "jest -- js-practice",
+    "test-ts-practice": "jest -- ts-practice"
   },
   "dependencies": {
     "lodash": "^4.17.21",
