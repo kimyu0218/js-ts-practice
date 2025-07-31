@@ -45,6 +45,7 @@ describe('types', () => {
         return a.length >= b.length ? a : b;
       }
 
+      expect(longest([1, 2], [1])).toStrictEqual([1, 2]);
       // longest(1, 2); // Error
     });
 
@@ -63,6 +64,8 @@ describe('types', () => {
       [index: number]: string;
     }
     const strArr: StringArray = {};
+
+    expect(() => (strArr[0] = 'foo')).not.toThrow();
     // strArr['foo'] = 'foo'; // Error
   });
 });
