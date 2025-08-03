@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 const SECRET_KEY = process.env.SECRET_KEY || 'SECRET_KEY';
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
-  if (req.path === '/login') {
+  if (req.path === '/auth/login') {
     return next();
   }
 
