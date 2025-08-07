@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../database';
+import { injectable } from 'inversify';
 
 export type MemberAttributes = {
   id: number;
@@ -9,18 +10,11 @@ export type MemberAttributes = {
 
 export type MemberCreationAttributes = Optional<MemberAttributes, 'id'>;
 
+@injectable()
 export class Member extends Model<MemberAttributes, MemberCreationAttributes> {
   declare id: number;
   declare name: string;
   declare age: number | null;
-
-  toJson() {
-    return {
-      id: this.id,
-      name: this.name,
-      age: this.age,
-    };
-  }
 }
 
 Member.init(
