@@ -16,7 +16,7 @@ export class MemberRouter {
   private initRoutes() {
     this.router.post(
       '',
-      validate([body('name').isString(), body('age').optional().isInt({ min: 0 })]),
+      validate([body('name').isString(), body('age').optional().isInt({ min: 0 })], ['name', 'age']),
       async (req: Request, res: Response) => {
         const { name, age } = req.body;
         await this.memberService.create({ name, age });
@@ -37,11 +37,10 @@ export class MemberRouter {
 
     this.router.patch(
       '/:id',
-      validate([
-        param('id').isInt({ gt: -1 }),
-        body('name').optional().isString(),
-        body('age').optional().isInt({ min: 0 }),
-      ]),
+      validate(
+        [param('id').isInt({ gt: -1 }), body('name').optional().isString(), body('age').optional().isInt({ min: 0 })],
+        ['name', 'id']
+      ),
       async (req: Request, res: Response) => {
         const id = parseInt(req.params.id!, 10);
         const { name, age } = req.body;

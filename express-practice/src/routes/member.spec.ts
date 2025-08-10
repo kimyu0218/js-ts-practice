@@ -87,7 +87,7 @@ describe('MemberRouter', () => {
     });
 
     it('should return 400 response', async () => {
-      const actual = await request(app).patch('/members/id0').send({});
+      const actual = await request(app).patch('/members/0').send({ unknown: true });
       expect(actual.status).toBe(400);
     });
 
@@ -101,7 +101,7 @@ describe('MemberRouter', () => {
   });
 
   describe('DELETE /members/:id', () => {
-    it('should return 200 response', async () => {
+    it('should return 204 response', async () => {
       const spy = jest.spyOn(memberService, 'deleteById').mockResolvedValue();
 
       const actual = await request(app).delete('/members/0').send();
