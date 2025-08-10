@@ -1,4 +1,4 @@
 import { MemberAttributes } from '../models/member';
 
 export type CreateMemberDto = Pick<MemberAttributes, 'name' | 'age'>;
-export type UpdateMemberDto = MemberAttributes;
+export type UpdateMemberDto = Pick<MemberAttributes, 'id'> & Partial<Omit<MemberAttributes, 'id'>>;
