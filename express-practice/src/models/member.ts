@@ -20,7 +20,7 @@ export class Member extends Model<MemberAttributes, MemberCreationAttributes> {
 Member.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -29,7 +29,7 @@ Member.init(
       allowNull: false,
     },
     age: {
-      type: DataTypes.TINYINT.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
   },

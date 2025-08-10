@@ -1,9 +1,27 @@
-import { Sequelize } from 'sequelize';
+import { Model, ModelStatic, Sequelize } from 'sequelize';
 
-export const sequelize = new Sequelize({
-  database: 'express-practice',
-  dialect: 'mysql',
-  username: process.env.MYSQL_USERNAME || 'root',
-  host: process.env.MYSQL_HOST || 'localhost',
-  port: (process.env.MYSQL_PORT as unknown as number) || 3306,
-});
+export const sequelize =
+  process.env.NODE_ENV === 'test'
+    ? new Sequelize('sqlite::memory:', { logging: false })
+    : new Sequelize({
+        database: 'express-practice',
+        dialect: 'mysql',
+        username: process.env.MYSQL_USERNAME || 'root',
+        host: process.env.MYSQL_HOST || 'localhost',
+        port: (process.env.MYSQL_PORT as unknown as number) || 3306,
+      });
+
+export async function initTestDatabase() {
+  await sequelize.authenticate();
+  await sequelize.sync({ force: true });
+}
+
+export async function clearTestDatabase() {
+  return Promise.all(
+    Object.values(sequelize.models).map((model: ModelStatic<Model>) => model.destroy({ truncate: true }))
+  );
+}
+
+export async function closeTestDatabase() {
+  await sequelize.close();
+}
