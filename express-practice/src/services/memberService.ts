@@ -1,7 +1,8 @@
 import { inject, injectable } from 'inversify';
-import { Member } from '../models/member';
+import { Member, MemberAttributes } from '../models/member';
 import { CreateMemberDto, UpdateMemberDto } from '../dtos/memberDto';
 import { MemberNotFoundError } from '../errors/memberError';
+import { FindOptions, Op } from 'sequelize';
 
 @injectable()
 export class MemberService {
@@ -42,5 +43,33 @@ export class MemberService {
     if (result == 0) {
       throw new MemberNotFoundError(id);
     }
+  }
+
+  async getByAgeGreaterThan(age: number) {
+    return this.member.findAll({ where: { age: { [Op.gt]: age } } });
+  }
+
+  async getByAgeBetween(minAge: number, maxAge: number) {
+    return this.member.findAll({ where: { age: { [Op.between]: [minAge, maxAge] } } });
+  }
+
+  async getByNameLike(name: string) {
+    return this.member.findAll({ where: { name: { [Op.like]: `%${name}%` } } });
+  }
+
+  async getByNameStartsWith(name: string) {
+    return this.member.findAll({ where: { name: { [Op.startsWith]: name } } });
+  }
+
+  async getByCursor(limit: number, cursor: number = 0) {
+    const result = await this.member.findAll({
+      where: { id: { [Op.gte]: cursor } },
+      order: [['id', 'ASC']],
+      limit: limit + 1,
+    });
+
+    const nextItem = result.length > limit ? result.pop() : null;
+    const nextCursor = nextItem?.id ?? null;
+    return { result, nextCursor };
   }
 }

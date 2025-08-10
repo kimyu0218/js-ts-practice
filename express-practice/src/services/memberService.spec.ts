@@ -90,4 +90,80 @@ describe('MemberService', () => {
       await expect(sut.deleteById(0)).rejects.toBeInstanceOf(MemberNotFoundError);
     });
   });
+
+  it('getByAgeGreaterThan', async () => {
+    await memberModel.bulkCreate([
+      { name: '홍길동', age: 10 },
+      { name: '고길동', age: 20 },
+    ]);
+
+    const actual = await sut.getByAgeGreaterThan(10);
+    expect(actual.length).toBe(1);
+    expect((actual[0] as Member).name).toBe('고길동');
+  });
+
+  it('getByAgeBetween', async () => {
+    await memberModel.bulkCreate([
+      { name: '홍길동', age: 10 },
+      { name: '고길동', age: 20 },
+    ]);
+
+    const actual = await sut.getByAgeBetween(0, 30);
+    expect(actual.length).toBe(2);
+    expect(actual).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: '홍길동', age: 10 }),
+        expect.objectContaining({ name: '고길동', age: 20 }),
+      ])
+    );
+  });
+
+  it('getByNameLike', async () => {
+    await memberModel.bulkCreate([
+      { name: '홍길동', age: 10 },
+      { name: '고길동', age: 20 },
+      { name: '고둘리', age: 0 },
+    ]);
+
+    const actual = await sut.getByNameLike('길동');
+    expect(actual.length).toBe(2);
+    expect(actual).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: '홍길동', age: 10 }),
+        expect.objectContaining({ name: '고길동', age: 20 }),
+      ])
+    );
+  });
+
+  it('getByNameStartsWith', async () => {
+    await memberModel.bulkCreate([
+      { name: '홍길동', age: 10 },
+      { name: '고길동', age: 20 },
+      { name: '고둘리', age: 0 },
+    ]);
+
+    const actual = await sut.getByNameStartsWith('고');
+    expect(actual.length).toBe(2);
+    expect(actual).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: '고길동', age: 20 }),
+        expect.objectContaining({ name: '고둘리', age: 0 }),
+      ])
+    );
+  });
+
+  it('getByCursor', async () => {
+    await memberModel.bulkCreate([
+      { name: '홍길동', age: 10 },
+      { name: '고길동', age: 20 },
+      { name: '고둘리', age: 0 },
+    ]);
+
+    const actual1 = await sut.getByCursor(2);
+    const actual2 = await sut.getByCursor(2, actual1.nextCursor as number);
+    expect(actual1.result.length).toBe(2);
+    expect(typeof actual1.nextCursor).toBe('number');
+    expect(actual2.result.length).toBe(1);
+    expect(actual2.nextCursor).toBeNull();
+  });
 });
