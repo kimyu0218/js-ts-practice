@@ -4,7 +4,9 @@ import cookieParser from 'cookie-parser';
 import { authenticate } from './middlewares/authenticate';
 import morgan from 'morgan';
 import authRouter from './routes/auth';
+import { MemberRouter } from './routes/member';
 import { errorHandler } from './middlewares/errorHandler';
+import { container } from './container';
 
 const app = express();
 const port = 3000;
@@ -16,6 +18,7 @@ app.use(cookieParser());
 
 app.use(authenticate);
 app.use('/auth', authRouter);
+app.use('/members', container.get(MemberRouter).router);
 
 app.use((req, res, next) => {
   const error = new Error(`Router not found: ${req.method} ${req.url}`);

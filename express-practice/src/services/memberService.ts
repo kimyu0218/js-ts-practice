@@ -32,10 +32,8 @@ export class MemberService {
     if (!member) {
       throw new MemberNotFoundError(id);
     }
-    member.name = name;
-    if (age) {
-      member.age = age;
-    }
+    member.name = name ?? member.name;
+    member.age = age ?? member.age;
     await member.save();
   }
 
