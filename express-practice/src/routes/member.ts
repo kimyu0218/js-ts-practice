@@ -8,7 +8,7 @@ import { validate } from '../middlewares/validate';
 export class MemberRouter {
   router: Router;
 
-  constructor(@inject(MemberService) private memberService: MemberService) {
+  constructor(@inject(MemberService) private readonly memberService: MemberService) {
     this.router = Router();
     this.initRoutes();
   }
