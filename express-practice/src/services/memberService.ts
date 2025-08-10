@@ -39,10 +39,12 @@ export class MemberService {
   }
 
   async deleteById(id: number) {
-    const result = await this.member.destroy({ where: { id } });
-    if (result == 0) {
+    const member = await this.member.findByPk(id);
+    if (!member) {
       throw new MemberNotFoundError(id);
     }
+    await member.destroyAccounts();
+    await this.member.destroy({ where: { id } });
   }
 
   async getByAgeGreaterThan(age: number) {

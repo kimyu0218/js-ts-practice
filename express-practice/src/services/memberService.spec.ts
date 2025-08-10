@@ -4,15 +4,18 @@ import { clearTestDatabase, closeTestDatabase, initTestDatabase } from '../datab
 import { CreateMemberDto, UpdateMemberDto } from '../dtos/memberDto';
 import { Member } from '../models/member';
 import { MemberNotFoundError } from '../errors/memberError';
+import { Account } from '../models/account';
 
 describe('MemberService', () => {
   let sut: MemberService;
   let memberModel: typeof Member;
+  let accountModel: typeof Account;
 
   beforeAll(async () => {
     await initTestDatabase();
     sut = container.get(MemberService);
     memberModel = container.get('MemberModel');
+    accountModel = container.get('AccountModel');
   });
 
   afterAll(async () => {
@@ -28,7 +31,7 @@ describe('MemberService', () => {
 
     await sut.create(member);
 
-    const actual = (await memberModel.findAll())[0] as Member;
+    const actual = (await memberModel.findOne()) as Member;
     expect(actual.name).toBe('홍길동');
   });
 
@@ -79,11 +82,14 @@ describe('MemberService', () => {
   describe('delete', () => {
     it('should delete member', async () => {
       const id = (await memberModel.create({ name: '홍길동' })).id;
+      await accountModel.create({ memberId: id });
 
       await sut.deleteById(id);
 
-      const actual = await memberModel.findByPk(id);
-      expect(actual).toBe(null);
+      const actual1 = await memberModel.findByPk(id);
+      const actual2 = await accountModel.findAll({ where: { memberId: id } });
+      expect(actual1).toBe(null);
+      expect(actual2).toEqual([]);
     });
 
     it('should throw error', async () => {
