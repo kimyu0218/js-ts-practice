@@ -2,10 +2,12 @@ import { DataTypes, Model, Optional, Association, HasManyGetAssociationsMixin } 
 import { sequelize } from '../database';
 import { injectable } from 'inversify';
 import { Member } from './member';
+import { bcryptHash } from '../utils/hash';
 
 export type AccountAttributes = {
   id: number;
   memberId: number;
+  password: string;
 };
 
 export type AccountCreationAttributes = Optional<AccountAttributes, 'id'>;
@@ -14,6 +16,7 @@ export type AccountCreationAttributes = Optional<AccountAttributes, 'id'>;
 export class Account extends Model<AccountAttributes, AccountCreationAttributes> {
   declare id: number;
   declare memberId: number;
+  declare password: string;
 }
 
 Account.init(
@@ -26,6 +29,14 @@ Account.init(
     memberId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      set(value: string) {
+        const hash = bcryptHash(value);
+        this.setDataValue('password', hash);
+      },
     },
   },
   {

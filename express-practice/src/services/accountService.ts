@@ -10,12 +10,12 @@ export class AccountService {
     @inject('MemberModel') private readonly member: typeof Member
   ) {}
 
-  async create(memberId: number) {
+  async create(memberId: number, password: string) {
     const member = await this.member.findByPk(memberId);
     if (!member) {
       throw new MemberNotFoundError(memberId);
     }
-    await this.account.create({ memberId });
+    await this.account.create({ memberId, password });
   }
 
   async getByMemberId(memberId: number) {

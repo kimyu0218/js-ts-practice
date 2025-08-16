@@ -82,7 +82,7 @@ describe('MemberService', () => {
   describe('delete', () => {
     it('should delete member', async () => {
       const id = (await memberModel.create({ name: '홍길동' })).id;
-      await accountModel.create({ memberId: id });
+      await accountModel.create({ memberId: id, password: 'passwd' });
 
       await sut.deleteById(id);
 
