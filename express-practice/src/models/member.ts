@@ -40,6 +40,7 @@ Member.init(
     age: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      defaultValue: null,
     },
   },
   {

@@ -56,7 +56,7 @@ export class MemberService {
   }
 
   async getByNameLike(name: string) {
-    return this.member.findAll({ where: { name: { [Op.like]: `%${name}%` } } });
+    return this.member.findAll({ where: { name: { [Op.substring]: name } } });
   }
 
   async getByNameStartsWith(name: string) {
@@ -64,14 +64,14 @@ export class MemberService {
   }
 
   async getByCursor(limit: number, cursor: number = 0) {
-    const result = await this.member.findAll({
+    const { count, rows } = await this.member.findAndCountAll({
       where: { id: { [Op.gte]: cursor } },
       order: [['id', 'ASC']],
       limit: limit + 1,
     });
 
-    const nextItem = result.length > limit ? result.pop() : null;
+    const nextItem = count > limit ? rows.pop() : null;
     const nextCursor = nextItem?.id ?? null;
-    return { result, nextCursor };
+    return { result: rows, nextCursor };
   }
 }
