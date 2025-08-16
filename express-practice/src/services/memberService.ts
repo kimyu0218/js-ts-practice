@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
-import { Member, MemberAttributes } from '../models/member';
+import { Member } from '../models/member';
 import { CreateMemberDto, UpdateMemberDto } from '../dtos/memberDto';
 import { MemberNotFoundError } from '../errors/memberError';
-import { FindOptions, Op } from 'sequelize';
+import { Op } from 'sequelize';
 
 @injectable()
 export class MemberService {
@@ -43,8 +43,7 @@ export class MemberService {
     if (!member) {
       throw new MemberNotFoundError(id);
     }
-    await member.destroyAccounts();
-    await this.member.destroy({ where: { id } });
+    await member.destroy();
   }
 
   async getByAgeGreaterThan(age: number) {

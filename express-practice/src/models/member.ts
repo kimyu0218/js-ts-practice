@@ -19,11 +19,6 @@ export class Member extends Model<MemberAttributes, MemberCreationAttributes> {
   declare accounts?: Account[];
 
   declare getAccounts: () => Promise<Account[]>;
-
-  async destroyAccounts() {
-    const accounts = this.accounts ?? (await this.getAccounts());
-    return Promise.all(accounts.map((account) => account.destroy()));
-  }
 }
 
 Member.init(
@@ -59,5 +54,11 @@ Member.init(
     tableName: 'member',
     timestamps: true,
     paranoid: true,
+    hooks: {
+      beforeDestroy: async (member, options) => {
+        const accounts = member.accounts ?? (await member.getAccounts());
+        await Promise.all(accounts.map((account) => account.destroy(options)));
+      },
+    },
   }
 );

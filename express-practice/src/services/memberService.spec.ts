@@ -103,7 +103,7 @@ describe('MemberService', () => {
       const actual1 = await memberModel.findByPk(id);
       const actual2 = await accountModel.findAll({ where: { memberId: id } });
       expect(actual1).toBe(null);
-      expect(actual2).toEqual([]);
+      expect(actual2).toHaveLength(0);
     });
 
     it('should throw error', async () => {
