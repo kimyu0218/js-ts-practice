@@ -2,7 +2,7 @@ import { Model, ModelStatic, Sequelize } from 'sequelize';
 
 export const sequelize =
   process.env.NODE_ENV === 'test'
-    ? new Sequelize('sqlite::memory:', { logging: false })
+    ? new Sequelize('sqlite:', { logging: false })
     : new Sequelize({
         database: 'express-practice',
         dialect: 'mysql',
@@ -15,6 +15,8 @@ export const sequelize =
           acquire: 10000,
           idle: 10000,
         },
+        timezone: '+09:00',
+        isolationLevel: 'REPEATABLE_READ',
       });
 
 export async function initTestDatabase() {
