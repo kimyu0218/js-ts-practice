@@ -2,7 +2,8 @@ import { inject, injectable } from 'inversify';
 import { Member } from '../models/member';
 import { CreateMemberDto, UpdateMemberDto } from '../dtos/memberDto';
 import { MemberNotFoundError } from '../errors/memberError';
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
+import { sequelize } from '../database';
 
 @injectable()
 export class MemberService {
@@ -39,11 +40,13 @@ export class MemberService {
   }
 
   async deleteById(id: number) {
-    const member = await this.member.findByPk(id);
-    if (!member) {
-      throw new MemberNotFoundError(id);
-    }
-    await member.destroy();
+    return sequelize.transaction(async (transaction: Transaction) => {
+      const member = await this.member.findByPk(id, { transaction });
+      if (!member) {
+        throw new MemberNotFoundError(id);
+      }
+      await member.destroy({ transaction });
+    });
   }
 
   async getByAgeGreaterThan(age: number) {
