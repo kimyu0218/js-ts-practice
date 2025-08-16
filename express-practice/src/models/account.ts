@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional, Association, HasManyGetAssociationsMixin } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../database';
 import { injectable } from 'inversify';
 import { Member } from './member';
