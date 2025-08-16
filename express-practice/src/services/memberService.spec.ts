@@ -5,6 +5,7 @@ import { CreateMemberDto, UpdateMemberDto } from '../dtos/memberDto';
 import { Member } from '../models/member';
 import { MemberNotFoundError } from '../errors/memberError';
 import { Account } from '../models/account';
+import { ValidationError } from 'sequelize';
 
 describe('MemberService', () => {
   let sut: MemberService;
@@ -26,13 +27,26 @@ describe('MemberService', () => {
     await clearTestDatabase();
   });
 
-  it('create', async () => {
-    const member: CreateMemberDto = { name: '홍길동' };
+  describe('create', () => {
+    it('should create member', async () => {
+      const member: CreateMemberDto = { name: '홍길동' };
 
-    await sut.create(member);
+      await sut.create(member);
 
-    const actual = (await memberModel.findOne()) as Member;
-    expect(actual.name).toBe('홍길동');
+      const actual = (await memberModel.findOne()) as Member;
+      expect(actual.name).toBe('홍길동');
+    });
+
+    it('should throw error when name is invalid', async () => {
+      await expect(sut.create({ name: '홍' })).rejects.toThrow(ValidationError);
+      await expect(sut.create({ name: '안녕하세요. 저는 홍길동이라고 합니다.' })).rejects.toThrow(ValidationError);
+    });
+
+    it('should throw error when age is invalid', async () => {
+      await expect(sut.create({ name: '홍길동', age: 0.1 })).rejects.toThrow(ValidationError);
+      await expect(sut.create({ name: '홍길동', age: -1 })).rejects.toThrow(ValidationError);
+      await expect(sut.create({ name: '홍길동', age: 201 })).rejects.toThrow(ValidationError);
+    });
   });
 
   it('getAll', async () => {

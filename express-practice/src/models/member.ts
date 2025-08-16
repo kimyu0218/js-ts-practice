@@ -36,11 +36,19 @@ Member.init(
     name: {
       type: DataTypes.STRING(15),
       allowNull: false,
+      validate: {
+        len: { args: [2, 15], msg: 'Must be a string with length between 2 and 15' },
+      },
     },
     age: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: null,
+      validate: {
+        isInt: true,
+        min: 1,
+        max: 200,
+      },
     },
   },
   {
