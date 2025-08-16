@@ -11,10 +11,7 @@ export class AccountService {
   ) {}
 
   async create(memberId: number, password: string) {
-    const member = await this.member.findByPk(memberId);
-    if (!member) {
-      throw new MemberNotFoundError(memberId);
-    }
+    await this.member.findByPkOrFail(memberId);
     await this.account.create({ memberId, password });
   }
 

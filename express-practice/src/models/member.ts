@@ -2,6 +2,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../database';
 import { injectable } from 'inversify';
 import { Account } from './account';
+import { MemberNotFoundError } from '../errors/memberError';
 
 export type MemberAttributes = {
   id: number;
@@ -19,6 +20,14 @@ export class Member extends Model<MemberAttributes, MemberCreationAttributes> {
   declare accounts?: Account[];
 
   declare getAccounts: () => Promise<Account[]>;
+
+  static async findByPkOrFail(id: number): Promise<Member> {
+    const member = await this.findByPk(id);
+    if (!member) {
+      throw new MemberNotFoundError(id);
+    }
+    return member;
+  }
 }
 
 Member.init(

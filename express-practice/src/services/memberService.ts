@@ -22,18 +22,11 @@ export class MemberService {
   }
 
   async getById(id: number): Promise<Member> {
-    const member = await this.member.findByPk(id);
-    if (!member) {
-      throw new MemberNotFoundError(id);
-    }
-    return member;
+    return this.member.findByPkOrFail(id);
   }
 
   async update({ id, name, age }: UpdateMemberDto) {
-    const member = await this.member.findByPk(id);
-    if (!member) {
-      throw new MemberNotFoundError(id);
-    }
+    const member = await this.member.findByPkOrFail(id);
     member.name = name ?? member.name;
     member.age = age ?? member.age;
     await member.save();
