@@ -103,7 +103,7 @@ describe('MemberService', () => {
       const actual1 = await memberModel.findByPk(id);
       const actual2 = await accountModel.findAll({ where: { memberId: id } });
       expect(actual1).toBe(null);
-      expect(actual2).toHaveLength(0);
+      expect(actual2.length).toBe(0);
     });
 
     it('should throw error', async () => {
@@ -185,5 +185,26 @@ describe('MemberService', () => {
     expect(typeof actual1.nextCursor).toBe('number');
     expect(actual2.result.length).toBe(1);
     expect(actual2.nextCursor).toBeNull();
+  });
+
+  it('getAllAdults', async () => {
+    await memberModel.bulkCreate([
+      { name: '홍길동', age: 20 },
+      { name: '고길동', age: 30 },
+      { name: '고둘리', age: 0 },
+    ]);
+
+    const actual = await sut.getAllAdults();
+    expect(actual.length).toBe(2);
+  });
+
+  it('getAllWithAccounts', async () => {
+    await memberModel.create({ name: '홍길동' });
+    const id = (await memberModel.create({ name: '고길동' })).id;
+    await accountModel.create({ memberId: id, password: 'passwd' });
+
+    const actual = await sut.getAllWithAccounts();
+    expect(actual.length).toBe(1);
+    expect(actual[0]?.name).toBe('고길동');
   });
 });

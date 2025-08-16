@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+import { DataTypes, Model, Op, Optional } from 'sequelize';
 import { sequelize } from '../database';
 import { injectable } from 'inversify';
 import { Account } from './account';
@@ -71,3 +71,9 @@ Member.init(
     },
   }
 );
+
+Member.addScope('adult', {
+  where: {
+    age: { [Op.gte]: 20 },
+  },
+});

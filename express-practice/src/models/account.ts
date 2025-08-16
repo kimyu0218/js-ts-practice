@@ -51,4 +51,7 @@ Account.init(
 );
 
 Member.hasMany(Account, { foreignKey: 'memberId', as: 'accounts' });
+Member.addScope('withAccounts', {
+  include: [{ model: Account, as: 'accounts', required: true }],
+});
 Account.belongsTo(Member, { foreignKey: 'memberId', as: 'member' });

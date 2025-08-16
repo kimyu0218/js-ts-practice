@@ -69,4 +69,12 @@ export class MemberService {
     const nextCursor = nextItem?.id ?? null;
     return { result: rows, nextCursor };
   }
+
+  async getAllAdults() {
+    return this.member.scope('adult').findAll();
+  }
+
+  async getAllWithAccounts() {
+    return this.member.scope('withAccounts').findAll();
+  }
 }
