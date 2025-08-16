@@ -34,6 +34,9 @@ Account.init(
       type: DataTypes.STRING,
       allowNull: false,
       set(value: string) {
+        if (value.length < 6) {
+          throw new Error('Password must be at least 6 characters long.');
+        }
         const hash = bcryptHash(value);
         this.setDataValue('password', hash);
       },

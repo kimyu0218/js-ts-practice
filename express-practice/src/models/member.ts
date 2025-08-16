@@ -39,6 +39,9 @@ Member.init(
       validate: {
         len: { args: [2, 15], msg: 'Must be a string with length between 2 and 15' },
       },
+      set(value: string) {
+        this.setDataValue('name', value.trim());
+      },
     },
     age: {
       type: DataTypes.INTEGER,
