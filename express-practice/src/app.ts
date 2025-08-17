@@ -3,7 +3,7 @@ import 'dotenv/config';
 import cookieParser from 'cookie-parser';
 import { authenticate } from './middlewares/authenticate';
 import morgan from 'morgan';
-import authRouter from './routes/auth';
+import { AuthRouter } from './routes/auth';
 import { MemberRouter } from './routes/member';
 import { errorHandler } from './middlewares/errorHandler';
 import { container } from './container';
@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use(authenticate);
-app.use('/auth', authRouter);
+app.use('/auth', container.get(AuthRouter).router);
 app.use('/members', container.get(MemberRouter).router);
 
 app.use((req, res, next) => {
