@@ -1,0 +1,9 @@
+{
+  "development": {
+    "username": "dev",
+    "password": "devPasswd123@",
+    "database": "express_practice",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

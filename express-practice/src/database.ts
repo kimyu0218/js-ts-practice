@@ -4,7 +4,7 @@ export const sequelize =
   process.env.NODE_ENV === 'test'
     ? new Sequelize('sqlite:', { logging: false })
     : new Sequelize({
-        database: 'express-practice',
+        database: process.env.MYSQL_DATABASE || 'express_practice',
         dialect: 'mysql',
         username: process.env.MYSQL_USERNAME || 'root',
         host: process.env.MYSQL_HOST || 'localhost',
