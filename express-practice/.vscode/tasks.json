@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "sequelize run migrations",
+      "type": "shell",
+      "command": "npx sequelize-cli db:migrate"
+    },
+    {
+      "label": "sequelize undo migrations",
+      "type": "shell",
+      "command": "npx sequelize-cli db:migrat:undo"
+    }
+  ]
+}
