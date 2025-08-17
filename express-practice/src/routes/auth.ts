@@ -1,5 +1,5 @@
 import { Request, Response, CookieOptions, NextFunction, Router } from 'express';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import jwt from 'jsonwebtoken';
 
 const tokenCookieOptions: CookieOptions = {
@@ -12,7 +12,7 @@ const tokenCookieOptions: CookieOptions = {
 export class AuthRouter {
   router: Router;
 
-  constructor() {
+  constructor(@inject('JwtSecretKey') private readonly jwtSecretKey: string) {
     this.router = Router();
     this.initRoutes();
   }
@@ -25,7 +25,7 @@ export class AuthRouter {
 
       // TODO: login
 
-      const token = jwt.sign({}, 'secretKey', { expiresIn: '1h' });
+      const token = jwt.sign({}, this.jwtSecretKey, { expiresIn: '1h' });
       return res
         .cookie('token', token, {
           ...tokenCookieOptions,
@@ -35,9 +35,6 @@ export class AuthRouter {
     });
 
     this.router.post('/logout', async (req: Request, res: Response, next: NextFunction) => {
-      if (!req.cookies.token) {
-        return res.status(400).send();
-      }
       return res.clearCookie('token', tokenCookieOptions).send();
     });
   }

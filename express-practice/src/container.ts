@@ -16,3 +16,5 @@ container.bind('AccountModel').toConstantValue(Account);
 container.bind(AccountService).toSelf();
 
 container.bind(AuthRouter).toSelf();
+
+container.bind('JwtSecretKey').toConstantValue(process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY');

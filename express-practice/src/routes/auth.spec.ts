@@ -2,6 +2,12 @@ import express from 'express';
 import request from 'supertest';
 import { AuthRouter } from './auth';
 import cookieParser from 'cookie-parser';
+import { authenticate } from '../middlewares/authenticate';
+import jwt from 'jsonwebtoken';
+import { container } from '../container';
+
+const SECRET_KEY = container.get('JwtSecretKey') as string;
+const token = jwt.sign({}, SECRET_KEY, { expiresIn: '1h' });
 
 describe('AuthRouter', () => {
   let app: express.Express;
@@ -10,7 +16,8 @@ describe('AuthRouter', () => {
     app = express();
     app.use(express.json());
     app.use(cookieParser());
-    app.use('/auth', new AuthRouter().router);
+    app.use(authenticate);
+    app.use('/auth', new AuthRouter(container.get('JwtSecretKey')).router);
   });
 
   describe('POST /auth/login', () => {
@@ -24,20 +31,20 @@ describe('AuthRouter', () => {
     });
 
     it('should return 400 response', async () => {
-      const actual = await request(app).post('/auth/login').set('Cookie', 'token=1').send();
+      const actual = await request(app).post('/auth/login').set('Cookie', `token=${token}`).send();
       expect(actual.status).toBe(400);
     });
   });
 
   describe('POST /auth/logout', () => {
     it('should return 200 response', async () => {
-      const actual = await request(app).post('/auth/logout').set('Cookie', 'token=1').send();
+      const actual = await request(app).post('/auth/logout').set('Cookie', `token=${token}`).send();
       expect(actual.status).toBe(200);
     });
 
-    it('should return 400 response', async () => {
+    it('should return 401 response', async () => {
       const actual = await request(app).post('/auth/logout').send();
-      expect(actual.status).toBe(400);
+      expect(actual.status).toBe(401);
     });
   });
 });
