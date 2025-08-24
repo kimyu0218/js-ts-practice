@@ -3,7 +3,7 @@ import { Account } from '../models/account';
 import { Member } from '../models/member';
 import { MemberNotFoundError } from '../errors/memberError';
 import { AccountNotFoundError, PasswordMismatchError } from '../errors/accountError';
-import { LoginDto } from '../dtos/accountDto';
+import { CreateAccountDto, LoginRequestDto } from '../dtos/accountDto';
 import { bcryptCompare } from '../utils/hash';
 
 @injectable()
@@ -13,12 +13,12 @@ export class AccountService {
     @inject('MemberModel') private readonly member: typeof Member
   ) {}
 
-  async create(memberId: number, password: string) {
+  async create({ memberId, password }: CreateAccountDto): Promise<void> {
     await this.member.findByPkOrFail(memberId);
     await this.account.create({ memberId, password });
   }
 
-  async getById(id: number): Promise<Account> {
+  private async getById(id: number): Promise<Account> {
     const account = await this.account.findByPk(id);
     if (!account) {
       throw new AccountNotFoundError(id);
@@ -34,10 +34,14 @@ export class AccountService {
     if (!member) {
       throw new MemberNotFoundError(memberId);
     }
-    return member.accounts ?? [];
+
+    if (!member.accounts) {
+      return [];
+    }
+    return member.accounts.map((account) => account.toJSON());
   }
 
-  async deleteByMemberId(memberId: number) {
+  async deleteByMemberId(memberId: number): Promise<void> {
     const member = await this.member.findOne({
       where: { id: memberId },
       include: [{ model: Account, as: 'accounts' }],
@@ -50,7 +54,7 @@ export class AccountService {
     }
   }
 
-  async login({ id, password }: LoginDto) {
+  async login({ id, password }: LoginRequestDto): Promise<void> {
     const account = await this.getById(id);
     if (!bcryptCompare(password, account.password)) {
       throw new PasswordMismatchError();

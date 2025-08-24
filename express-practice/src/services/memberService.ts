@@ -1,6 +1,13 @@
 import { inject, injectable } from 'inversify';
-import { Member } from '../models/member';
-import { CreateMemberDto, UpdateMemberDto } from '../dtos/memberDto';
+import { Member, MemberAttributes } from '../models/member';
+import {
+  CreateMemberRequestDto,
+  GetByAgeBetweenRequestDto,
+  GetByCursorRequestDto,
+  GetByCursorResponseDto,
+  GetByNameRequestDto,
+  UpdateMemberRequestDto,
+} from '../dtos/memberDto';
 import { MemberNotFoundError } from '../errors/memberError';
 import { Op, Transaction } from 'sequelize';
 import { sequelize } from '../database';
@@ -9,7 +16,7 @@ import { sequelize } from '../database';
 export class MemberService {
   constructor(@inject('MemberModel') private readonly member: typeof Member) {}
 
-  async create({ name, age }: CreateMemberDto) {
+  async create({ name, age }: CreateMemberRequestDto): Promise<void> {
     if (age) {
       await this.member.create({ name, age });
     } else {
@@ -17,22 +24,23 @@ export class MemberService {
     }
   }
 
-  async getAll() {
-    return await this.member.findAll();
+  async getAll(): Promise<MemberAttributes[]> {
+    const members = await this.member.findAll();
+    return members.map((member) => member.toJSON());
   }
 
-  async getById(id: number): Promise<Member> {
-    return this.member.findByPkOrFail(id);
+  async getById(id: number): Promise<MemberAttributes> {
+    return (await this.member.findByPkOrFail(id)).toJSON();
   }
 
-  async update({ id, name, age }: UpdateMemberDto) {
+  async update({ id, name, age }: UpdateMemberRequestDto): Promise<void> {
     const member = await this.member.findByPkOrFail(id);
     member.name = name ?? member.name;
     member.age = age ?? member.age;
     await member.save();
   }
 
-  async deleteById(id: number) {
+  async deleteById(id: number): Promise<void> {
     return sequelize.transaction(async (transaction: Transaction) => {
       const member = await this.member.findByPk(id, { transaction });
       if (!member) {
@@ -42,23 +50,27 @@ export class MemberService {
     });
   }
 
-  async getByAgeGreaterThan(age: number) {
-    return this.member.findAll({ where: { age: { [Op.gt]: age } } });
+  async getByAgeGreaterThan(age: number): Promise<MemberAttributes[]> {
+    const members = await this.member.findAll({ where: { age: { [Op.gt]: age } } });
+    return members.map((member) => member.toJSON());
   }
 
-  async getByAgeBetween(minAge: number, maxAge: number) {
-    return this.member.findAll({ where: { age: { [Op.between]: [minAge, maxAge] } } });
+  async getByAgeBetween({ minAge, maxAge }: GetByAgeBetweenRequestDto): Promise<MemberAttributes[]> {
+    const members = await this.member.findAll({ where: { age: { [Op.between]: [minAge, maxAge] } } });
+    return members.map((member) => member.toJSON());
   }
 
-  async getByNameLike(name: string) {
-    return this.member.findAll({ where: { name: { [Op.substring]: name } } });
+  async getByNameLike({ name }: GetByNameRequestDto): Promise<MemberAttributes[]> {
+    const members = await this.member.findAll({ where: { name: { [Op.substring]: name } } });
+    return members.map((member) => member.toJSON());
   }
 
-  async getByNameStartsWith(name: string) {
-    return this.member.findAll({ where: { name: { [Op.startsWith]: name } } });
+  async getByNameStartsWith({ name }: GetByNameRequestDto): Promise<MemberAttributes[]> {
+    const members = await this.member.findAll({ where: { name: { [Op.startsWith]: name } } });
+    return members.map((member) => member.toJSON());
   }
 
-  async getByCursor(limit: number, cursor: number = 0) {
+  async getByCursor({ limit, cursor = 0 }: GetByCursorRequestDto): Promise<GetByCursorResponseDto> {
     const { count, rows } = await this.member.findAndCountAll({
       where: { id: { [Op.gte]: cursor } },
       order: [['id', 'ASC']],
@@ -67,14 +79,16 @@ export class MemberService {
 
     const nextItem = count > limit ? rows.pop() : null;
     const nextCursor = nextItem?.id ?? null;
-    return { result: rows, nextCursor };
+    return { result: rows.map((row) => row.toJSON()), nextCursor };
   }
 
-  async getAllAdults() {
-    return this.member.scope('adult').findAll();
+  async getAllAdults(): Promise<MemberAttributes[]> {
+    const members = await this.member.scope('adult').findAll();
+    return members.map((member) => member.toJSON());
   }
 
-  async getAllWithAccounts() {
-    return this.member.scope('withAccounts').findAll();
+  async getAllWithAccounts(): Promise<MemberAttributes[]> {
+    const members = await this.member.scope('withAccounts').findAll();
+    return members.map((member) => member.toJSON());
   }
 }

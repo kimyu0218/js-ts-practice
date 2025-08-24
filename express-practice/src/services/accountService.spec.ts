@@ -30,7 +30,7 @@ describe('AccountService', () => {
     it('should create account', async () => {
       const memberId = (await memberModel.create({ name: '홍길동' })).id;
 
-      await sut.create(memberId, 'passwd');
+      await sut.create({ memberId, password: 'passwd' });
 
       const actual = await accountModel.findOne({ where: { memberId } });
       expect(actual).not.toBeNull();
@@ -38,7 +38,7 @@ describe('AccountService', () => {
     });
 
     it('should throw error', async () => {
-      await expect(sut.create(0, 'passwd')).rejects.toBeInstanceOf(MemberNotFoundError);
+      await expect(sut.create({ memberId: 0, password: 'passwd' })).rejects.toBeInstanceOf(MemberNotFoundError);
     });
   });
 

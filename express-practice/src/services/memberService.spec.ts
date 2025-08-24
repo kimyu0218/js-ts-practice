@@ -1,7 +1,7 @@
 import { MemberService } from './memberService';
 import { container } from '../container';
 import { clearTestDatabase, closeTestDatabase, initTestDatabase } from '../database';
-import { CreateMemberDto, UpdateMemberDto } from '../dtos/memberDto';
+import { CreateMemberRequestDto, UpdateMemberRequestDto } from '../dtos/memberDto';
 import { Member } from '../models/member';
 import { MemberNotFoundError } from '../errors/memberError';
 import { Account } from '../models/account';
@@ -29,7 +29,7 @@ describe('MemberService', () => {
 
   describe('create', () => {
     it('should create member', async () => {
-      const member: CreateMemberDto = { name: '홍길동' };
+      const member: CreateMemberRequestDto = { name: '홍길동' };
 
       await sut.create(member);
 
@@ -50,7 +50,7 @@ describe('MemberService', () => {
   });
 
   it('getAll', async () => {
-    const members: CreateMemberDto[] = [{ name: '홍길동' }, { name: '고길동' }];
+    const members: CreateMemberRequestDto[] = [{ name: '홍길동' }, { name: '고길동' }];
 
     await Promise.all(members.map((member) => memberModel.create(member)));
 
@@ -78,7 +78,7 @@ describe('MemberService', () => {
   describe('update', () => {
     it('should update member', async () => {
       const id = (await memberModel.create({ name: '홍길동' })).id;
-      const member: UpdateMemberDto = { id, name: '고길동' };
+      const member: UpdateMemberRequestDto = { id, name: '고길동' };
 
       await sut.update(member);
 
@@ -87,7 +87,7 @@ describe('MemberService', () => {
     });
 
     it('should throw error', async () => {
-      const member: UpdateMemberDto = { id: 0, name: '고길동' };
+      const member: UpdateMemberRequestDto = { id: 0, name: '고길동' };
 
       await expect(sut.update(member)).rejects.toBeInstanceOf(MemberNotFoundError);
     });
@@ -128,7 +128,7 @@ describe('MemberService', () => {
       { name: '고길동', age: 20 },
     ]);
 
-    const actual = await sut.getByAgeBetween(0, 30);
+    const actual = await sut.getByAgeBetween({ minAge: 0, maxAge: 30 });
     expect(actual.length).toBe(2);
     expect(actual).toEqual(
       expect.arrayContaining([
@@ -145,7 +145,7 @@ describe('MemberService', () => {
       { name: '고둘리', age: 0 },
     ]);
 
-    const actual = await sut.getByNameLike('길동');
+    const actual = await sut.getByNameLike({ name: '길동' });
     expect(actual.length).toBe(2);
     expect(actual).toEqual(
       expect.arrayContaining([
@@ -162,7 +162,7 @@ describe('MemberService', () => {
       { name: '고둘리', age: 0 },
     ]);
 
-    const actual = await sut.getByNameStartsWith('고');
+    const actual = await sut.getByNameStartsWith({ name: '고' });
     expect(actual.length).toBe(2);
     expect(actual).toEqual(
       expect.arrayContaining([
@@ -179,8 +179,11 @@ describe('MemberService', () => {
       { name: '고둘리', age: 0 },
     ]);
 
-    const actual1 = await sut.getByCursor(2);
-    const actual2 = await sut.getByCursor(2, actual1.nextCursor as number);
+    const actual1 = await sut.getByCursor({ limit: 2 });
+    const actual2 = await sut.getByCursor({
+      limit: 2,
+      cursor: actual1.nextCursor as number,
+    });
     expect(actual1.result.length).toBe(2);
     expect(typeof actual1.nextCursor).toBe('number');
     expect(actual2.result.length).toBe(1);
