@@ -5,33 +5,44 @@ import cookieParser from 'cookie-parser';
 import { authenticate } from '../middlewares/authenticate';
 import jwt from 'jsonwebtoken';
 import { container } from '../container';
+import { AccountService } from '../services/accountService';
 
 const SECRET_KEY = container.get('JwtSecretKey') as string;
 const token = jwt.sign({}, SECRET_KEY, { expiresIn: '1h' });
 
 describe('AuthRouter', () => {
   let app: express.Express;
+  let accountService: AccountService;
 
   beforeAll(() => {
+    accountService = container.get(AccountService);
+
     app = express();
     app.use(express.json());
     app.use(cookieParser());
     app.use(authenticate);
-    app.use('/auth', new AuthRouter(container.get('JwtSecretKey')).router);
+    app.use('/auth', new AuthRouter(container.get(AccountService), container.get('JwtSecretKey')).router);
   });
 
   describe('POST /auth/login', () => {
     it('should return 200 response', async () => {
-      const actual1 = await request(app).post('/auth/login').send();
+      jest.spyOn(accountService, 'login').mockResolvedValue();
+
+      const actual1 = await request(app).post('/auth/login').send({ id: 0, password: 'passwd' });
       const actual2 = Array.isArray(actual1.headers['set-cookie'])
         ? actual1.headers['set-cookie']
         : actual1.headers['set-cookie']?.split(',') || [];
       expect(actual1.status).toBe(200);
-      expect(actual2.some((c: string) => c.startsWith('token='))).toBe(true);
+      expect(actual2.some((cookie: string) => cookie.startsWith('token='))).toBe(true);
     });
 
     it('should return 400 response', async () => {
       const actual = await request(app).post('/auth/login').set('Cookie', `token=${token}`).send();
+      expect(actual.status).toBe(400);
+    });
+
+    it('should return 400 response', async () => {
+      const actual = await request(app).post('/auth/login').send();
       expect(actual.status).toBe(400);
     });
   });
